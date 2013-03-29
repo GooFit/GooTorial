@@ -1,0 +1,1 @@
+nvcc -o exp4a -arch=sm_20 example4a.cu -L./release_16Jan2013/rootstuff/ -lRootUtils

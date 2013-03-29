@@ -1,0 +1,4 @@
+nvcc -o exp3a -arch=sm_20 example3a.cu -L./release_16Jan2013/rootstuff/ -lRootUtils
+nvcc -o exp3b -arch=sm_20 example3b.cu -L./release_16Jan2013/rootstuff/ -lRootUtils
+nvcc -o exp3c -arch=sm_20 example3c.cu -L./release_16Jan2013/rootstuff/ -lRootUtils
+
