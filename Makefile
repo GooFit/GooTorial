@@ -4,34 +4,32 @@ LD=g++
 OutPutOpt = -o
 CXXFLAGS     = -O3 -arch=sm_20 
 
-CUDALOCATION = /usr/local/cuda/5.0.35/
-CUDAHEADERS = $(CUDALOCATION)/include/
-SRCDIR = $(PWD)/FPOINTER
-INCLUDES += -I$(CUDAHEADERS) -I$(SRCDIR) -I$(PWD) -I$(PWD)/rootstuff 
-LIBS += -L$(CUDALOCATION)/lib64 -lcudart -L$(PWD)/rootstuff -lRootUtils 
+CUDALIBDIR=lib64
+UNAME=$(shell uname)
+ifeq ($(UNAME), Darwin)
+CXXFLAGS+=-m64
+CUDALIBDIR=lib
+endif
 
-# These are for user-level programs that want access to the ROOT plotting stuff, 
-# not just the fitting stuff included in the GooFit-local ripped library. 
-ROOT_INCLUDES = -I$(ROOTSYS)/include/
-ROOT_LIBS     = -L$(ROOTSYS)/lib/ -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lMatrix -lPhysics -lMathCore -pthread -lThread -lMinuit2 -lMinuit -rdynamic -lFoam 
-
-THRUSTO		= wrkdir/Variable.o wrkdir/PdfBuilder.o wrkdir/ThrustPdfFunctorCUDA.o wrkdir/Faddeeva.o wrkdir/FitControl.o wrkdir/FunctorBase.o wrkdir/DataSet.o wrkdir/BinnedDataSet.o wrkdir/UnbinnedDataSet.o wrkdir/FunctorWriter.o 
+GOODIR = $(PWD)/release_16Jan2013
+EXLIST = example2 example3a example3b example3c example4a example4b example4c example4d example4e
 
 .SUFFIXES: 
 
-all:	example4b 
+examples:	$(EXLIST)
+
+include $(GOODIR)/Makefile.goofit 
 
 %.o:	%.cu
 	$(CXX) $(INCLUDES) $(ROOT_INCLUDES) $(CXXFLAGS) -c -o $@ $<
 
-example%:	example%.o 
-		$(LD) $(LDFLAGS) $^ $(THRUSTO) $(LIBS) $(ROOT_LIBS) $(OutPutOpt) $@
+example%:	example%.o $(THRUSTO) $(ROOTUTILLIB) 
+		$(LD) $(LDFLAGS) $< $(THRUSTO) $(LIBS) $(ROOT_LIBS) $(OutPutOpt) $@
 		@echo "$@ done"
 
-exercise%:	exercise%.o 
-		$(LD) $(LDFLAGS) $^ $(THRUSTO) $(LIBS) $(ROOT_LIBS) $(OutPutOpt) $@
+exercise%:	exercise%.o $(THRUSTO) $(ROOTUTILLIB) 
+		$(LD) $(LDFLAGS) $< $(THRUSTO) $(LIBS) $(ROOT_LIBS) $(OutPutOpt) $@
 		@echo "$@ done"
 
-clean:
-		@rm -f *.o core 
-		cd rootstuff; $(MAKE) clean 
+exclean:
+		@rm -f *.o $(EXLIST) 
